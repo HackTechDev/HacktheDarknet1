@@ -1,0 +1,175 @@
+# table_def.py
+from sqlalchemy import create_engine, ForeignKey
+from sqlalchemy import Column, Date, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, backref
+ 
+engine = create_engine('sqlite:///darknet.db', echo = False)
+Base = declarative_base()
+ 
+
+class User(Base):
+    __tablename__ = "user"
+ 
+    id = Column(Integer, primary_key=True)
+    firstname = Column(String)  
+    lastname = Column(String)
+    email = Column(String)
+    password = Column(String)
+ 
+    def __init__(self, firstname, lastname, email, password):
+        self.firstname = firstname    
+        self.lastname = lastname 
+        self.email = email
+        self.password = password
+
+class Hacker(Base):
+    __tablename__ = "hacker"
+ 
+    id = Column(Integer, primary_key=True)
+    nickname = Column(String)
+    email = Column(String)
+    password = Column(String)
+ 
+    user_id = Column(Integer, ForeignKey("user.id"))
+    user = relationship("User", backref=backref("hacker", order_by=id))
+ 
+    def __init__(self, nickname, email, password):
+        self.nickname = nickname
+        self.email= email
+        self.password = password
+ 
+class Team(Base):
+    __tablename__ = "team"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    nationality = Column(String)
+
+    hacker_id = Column(Integer, ForeignKey("hacker.id"))
+    hacker = relationship("Hacker", backref=backref("team", order_by=id))
+ 
+    def __init__(self, name, nationality):
+        self.name = name
+        self.nationality = nationality
+
+
+class Virus(Base):
+    __tablename__ = "virus"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+    type = Column(String)
+
+    def __init__(self, name, price, type):
+        self.name = name
+        self.price = price
+        self.type = type
+
+        """
+        Worm
+        DDoS
+        Botnet
+        """
+
+class Software(Base):
+    __tablename__ = "software"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+    type = Column(String)
+
+    def __init__(self, name, price, type):
+        self.name = name
+        self.price = price
+        self.type = type
+        
+    
+    """
+    Client/Server: 
+        Firewall
+        Secure Shell
+        Telnet
+        Load balancer
+        Mail
+    Password Cracker
+    Ping
+    Anti-Virus
+    """
+
+
+class Operatingsystem(Base):
+    __tablename__ = "operatingsystem"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+    type = Column(String)
+    version = Column(String)
+
+    def __init__(self, name, price, type, version):
+        self.name = name
+        self.price = price
+        self.type = type
+        self.version = version
+
+    """
+    Client/Serveur:
+        Linux: Debian
+               Ubuntu
+        Windows
+        MacOs
+    """
+
+
+class Cluster(Base):
+    __tablename__ = "cluster"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+class Farm(Base):
+    __tablename__ = "farm"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+class Server(Base):
+    __tablename__ = "server"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+    ipaddress = Column(String)
+    
+    def __init__(self, name, price, ipaddress):
+        self.name = name
+        self.price = price
+        self.ipaddress = ipaddress
+
+class Workstation(Base):
+    __tablename__ = "workstation"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    price = Column(String)
+    ipaddress = Column(String)
+
+    def __init__(self, name, price, ipaddress):
+        self.name = name
+        self.price = price    
+        self.ipaddress = ipaddress
+
+Base.metadata.create_all(engine)
