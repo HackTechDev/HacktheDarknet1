@@ -160,7 +160,7 @@ class Softwaretype(Base):
         self.name = name
 
 """
-An operating system has several securities and vulnerabilities
+An operating system has several security and vulnerability
 """
 class Operatingsystem(Base):
     __tablename__ = "operatingsystem"
