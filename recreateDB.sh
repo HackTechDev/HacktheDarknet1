@@ -18,4 +18,4 @@ echo
 echo "***********************************"
 echo "************** query **************"
 echo "***********************************"
-python ./queryDatabase.py
+#python ./queryDatabase.py

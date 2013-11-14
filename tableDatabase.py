@@ -44,6 +44,75 @@ operatingsystem_vulnerability = Table("operatingsystem_vulnerability", Base.meta
                     )
                     
 
+workstation_operatingsystem_software = Table("workstation_operatingsystem_software", Base.metadata,
+                        Column('workstation_id', Integer, ForeignKey('workstation.id')),
+                        Column('operatingsystem_id', Integer, ForeignKey('operatingsystem.id')),
+                        Column('software_id', Integer, ForeignKey('software.id'))
+                    )
+
+server_operatingsystem_software = Table("server_operatingsystem_software", Base.metadata,
+                        Column('server_id', Integer, ForeignKey('server.id')),
+                        Column('operatingsystem_id', Integer, ForeignKey('operatingsystem.id')),
+                        Column('software_id', Integer, ForeignKey('software.id'))
+                    )
+
+"""
+Log
+"""
+
+class Userlog(Base):
+    __tablename__ = "userlog"
+            
+    id = Column(Integer, primary_key=True)
+    log = Column(String)  
+
+    user_id = Column(Integer, ForeignKey("user.id"))
+    user = relationship("User", backref=backref("userlog", order_by=id))
+                                 
+    def __init__(self, log):
+        self.log = log
+
+class Workstationlog(Base):
+    __tablename__ = "workstationlog"
+            
+    id = Column(Integer, primary_key=True)
+    log = Column(String)  
+
+    workstation_id = Column(Integer, ForeignKey("workstation.id"))
+    workstation = relationship("Workstation", backref=backref("workstationlog", order_by=id))
+                                 
+    def __init__(self, log):
+        self.log = log
+        
+class Serverlog(Base):
+    __tablename__ = "serverlog"
+            
+    id = Column(Integer, primary_key=True)
+    log = Column(String)  
+
+    server_id = Column(Integer, ForeignKey("server.id"))
+    server = relationship("Server", backref=backref("serverlog", order_by=id))
+                                 
+    def __init__(self, log):
+        self.log = log        
+"""
+A team has several hackers
+"""
+class Team(Base):
+    __tablename__ = "team"
+            
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  
+    nationality = Column(String)
+
+    hacker_id = Column(Integer, ForeignKey("hacker.id"))
+    hacker = relationship("Hacker", backref=backref("team", order_by=id))
+                                 
+    def __init__(self, name, nationality):
+        self.name = name
+        self.nationality = nationality
+
+
 """
 A user has several hacker
 A user has several server
@@ -71,6 +140,7 @@ class User(Base):
 
 """
 A hacker has one User
+A hacker has one Team
 """
 class Hacker(Base):
     __tablename__ = "hacker"
@@ -100,13 +170,21 @@ class Workstation(Base):
     name = Column(String)  
     price = Column(String)
     ipaddress = Column(String)
-
+    memory = Column(String) # Code source in memory
+    harddisk = Column(String) # Code source in harddisk
+    serialnumber = Column(String)
+    constraint = Column(String)
+        
     operatingsystem_id = Column(Integer, ForeignKey("operatingsystem.id"))
 
-    def __init__(self, name, price, ipaddress):
+    def __init__(self, name, price, ipaddress, memory, harddisk, serialnumber, constraint):
         self.name = name
         self.price = price    
         self.ipaddress = ipaddress
+        self.memory = memory
+        self.harddisk = harddisk
+        self.serialnumber = serialnumber
+        self.constraint = constraint
         
 """
 A server can have several user
@@ -119,13 +197,19 @@ class Server(Base):
     name = Column(String)  
     price = Column(String)
     ipaddress = Column(String)
-    
+    memory = Column(String)
+    harddisk = Column(String)
+    serialnumber = Column(String)
+    constraint = Column(String)
+
     operatingsystem_id = Column(Integer, ForeignKey("operatingsystem.id"))
 
-    def __init__(self, name, price, ipaddress):
+    def __init__(self, name, price, ipaddress, memory, harddisk, serialnumber, contraint):
         self.name = name
         self.price = price
         self.ipaddress = ipaddress
+        self.serialnumber = serialnumber
+        self.constraint = contraint
 
 """
 A software has only one type of software
@@ -140,24 +224,30 @@ class Software(Base):
     price = Column(Integer)
     description = Column(String)
     sourcecode = Column(String)
+    serialnumber = Column(String)
+    constraint = Column(String)
 
-    softwaretype_id = Column(Integer, ForeignKey("softwaretype.id"))
+    softwarecategory_id = Column(Integer, ForeignKey("softwarecategory.id"))
 
-    def __init__(self, name, version, price, description, sourcecode):
+    def __init__(self, name, version, price, description, sourcecode, serialnumber, contraint):
         self.name = name
         self.version = version
         self.price = price
         self.description = description
         self.sourcecode = sourcecode
+        self.serialnumber = serialnumber
+        self.constraint = contraint
 
-class Softwaretype(Base):
-    __tablename__ = "softwaretype"
+class Softwarecategory(Base):
+    __tablename__ = "softwarecategory"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    description = Column(String)
 
-    def __init__(self, name):
+    def __init__(self, name, description):
         self.name = name
+        self.description = description
 
 """
 An operating system has several securities and vulnerabilities
@@ -169,12 +259,16 @@ class Operatingsystem(Base):
     name = Column(String)  
     price = Column(String)
     version = Column(String)
-    
-    def __init__(self, name, price, version):
+    serialnumber = Column(String)
+    constraint = Column(String)
+
+    def __init__(self, name, price, version, serialnumber, constraint):
         self.name = name
         self.price = price
         self.version = version
-        
+        self.serialnumber = serialnumber
+        self.constraint = constraint
+
 """        
 """     
 class Security(Base):
@@ -183,15 +277,12 @@ class Security(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)  
     version = Column(String)
-    security = Column(String)
     description = Column(String)
     sourcecode = Column(String)    
 
-    def __init__(self, name, price, version, security, description, sourcecode):
+    def __init__(self, name, version, description, sourcecode):
         self.name = name
-        self.price = price
         self.version = version
-        self.security = security
         self.description = description
         self.sourcecode = sourcecode
 
@@ -203,20 +294,36 @@ class Vulnerability(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)  
     version = Column(String)
-    vulnerability = Column(String)
     description = Column(String)
     sourcecode = Column(String)  
     
-    def __init__(self, name, price, version, vulnerability, description, sourcecode):
+    def __init__(self, name, version, description, sourcecode):
         self.name = name
-        self.price = price
         self.version = version
-        self.vulnerability = vulnerability
         self.description = description
         self.sourcecode = sourcecode 
 
+"""
+product : 
+ software, hardware, server, workstation
+"""
+class Blackmarket(Base):
+    __tablename__ = "blackmarket"
 
-        
+    id = Column(Integer, primary_key=True)
+    productid = Column(Integer)
+    name = Column(String)  
+    version = Column(String)
+    product = Column(String)
+    availability = Column(Integer)   
+    
+
+    def __init__(self, productid, price, product, availability):
+        self.productid = productid
+        self.price = price
+        self.product = product
+        self.availability = availability
+       
 
 """
 Create database and all tables
