@@ -90,7 +90,7 @@ def balanced(t):
 class Console:
     def __init__(self, screen, rect, functions={}, key_calls={}, vars={}, syntax={}):
         if not pygame.display.get_init():
-            raise pygame.error, "Display not initialized. Initialize the display before creating a Console"
+            raise pygame.error
         
         if not pygame.font.get_init():
             pygame.font.init()
@@ -172,7 +172,7 @@ class Console:
         '''
         self.init_default_cfg()
         if os.path.exists(cfg_path):
-            for line in file(cfg_path):
+            for line in open(cfg_path):
                 tokens = self.tokenize(line)
                 if re_is_comment.match(line):
                     continue
@@ -263,7 +263,7 @@ class Console:
         text = self.c_in[:self.c_pos] + "\v" + self.c_in[self.c_pos+1:] 
         n_max = self.max_chars - len(self.c_ps)
         vis_range = self.c_draw_pos, self.c_draw_pos + n_max
-        return self.c_ps + text[vis_range[0]:vis_range[1]]
+        return self.c_ps + text[vis_range[0]:int(vis_range[1])]
     
     def draw(self):
         '''\
@@ -276,7 +276,7 @@ class Console:
             self.changed = False
             # Draw Output
             self.txt_layer.fill(self.bg_color)
-            lines = self.c_out[-(self.max_lines+self.c_scroll):len(self.c_out)-self.c_scroll]
+            lines = self.c_out[-(int(self.max_lines) + self.c_scroll):len(self.c_out) - self.c_scroll]
             y_pos = self.size[HEIGHT]-(self.font_height*(len(lines)+1))
             
             for line in lines:
@@ -374,8 +374,8 @@ class Console:
                 tokens = self.tokenize(assign.group('value'))
             else:
                 tokens = self.tokenize(text)
-        except ParseError, e:
-            self.output(r'At Token: "%s"' % e.at_token())
+        except ParseError:
+            self.output(r'At Token: "%s"')
             return;
         
         if tokens == None:
@@ -552,17 +552,17 @@ class Console:
         tok = tok.strip("$")
         try:
             tmp = eval(tok, self.__dict__, self.user_namespace)
-        except SyntaxError, strerror:
-            self.output("SyntaxError: " + str(strerror))
-            raise ParseError, tok
-        except TypeError, strerror:
-            self.output("TypeError: " + str(strerror))
-            raise ParseError, tok
-        except NameError, strerror:
-            self.output("NameError: " + str(strerror))
+        except SyntaxError:
+            self.output("SyntaxError: ")
+            raise ParseError
+        except TypeError:
+            self.output("TypeError: ")
+            raise ParseError
+        except NameError:
+            self.output("NameError: ")
         except:
             self.output("Error:")
-            raise ParseError, tok
+            raise ParseError
         else:
             return tmp
     
@@ -603,7 +603,7 @@ class Console:
                     if (i + t_count) < len(tokens):
                         cmd.append(self.convert_token(val))
                     else:
-                        raise ParseError, val
+                        raise ParseError
             else:
                 cmd.append(val)
             i += t_count + 1

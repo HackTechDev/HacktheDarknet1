@@ -23,7 +23,7 @@ def console_add(console, match):
 	right = console.convert_token(match.group("right_op"))
 	try:
 		out = left + right
-	except Exception, strerror:
+	except Exception:
 		console.output(strerror)
 	else:
 		console.output(out)
@@ -44,7 +44,7 @@ def console_func(console, match):
 	
 	try:
 		out = func(*params)
-	except Exception, strerror:
+	except Exception:
 		console.output(strerror)
 	else:
 		console.output(out)

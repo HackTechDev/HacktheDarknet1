@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import pyconsole
 import pygame, os, sys, re
 from pygame.locals import *
