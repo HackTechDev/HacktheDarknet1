@@ -7,7 +7,7 @@ import pychat_util
 
 READ_BUFFER = 4096
 
-host = sys.argv[1] if len(sys.argv) >= 2 else ''
+host = "127.0.0.1"
 listen_sock = pychat_util.create_socket((host, pychat_util.PORT))
 
 hall = Hall()
