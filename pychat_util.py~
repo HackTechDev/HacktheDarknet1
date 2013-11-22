@@ -22,36 +22,6 @@ PORT = 22222
 QUIT_STRING = '<$quit$>'
 
 
-def list(table):
-    '''\
-    Returns a record of a table
-    '''
-
-    if table == "user":
-        users = ""
-        res = session.query(User).all()
-        for user in res:
-            users += user.firstname + " " + user.lastname + "\n";
-        return users      
-
-    if table == "hacker":
-        hackers = ""
-        res = session.query(Hacker).all()
-        for hacker in res:
-            hackers += hacker.nickname + "\n";
-        return hackers      
-
-    return "Invalid table"
-
-    """
-    qry = session.query(User, Hacker)
-    qry = qry.filter(User.id == Hacker.user_id)
-
-    user, hacker = qry.filter(Hacker.nickname == "SolomonKane").first()
-    return user.firstname + " " + user.lastname + " = " + hacker.nickname
-    """    
-    
-    
 def create_socket(address):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -121,6 +91,7 @@ class Hall:
 
         elif "<list>" in msg:
             self.list_rooms(player) 
+
         elif "<manual>" in msg:
             player.socket.sendall(instructions)
         

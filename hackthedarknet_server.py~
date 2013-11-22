@@ -6,7 +6,46 @@ from pychat_util import Hall, Room, Player
 import pychat_util
 
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from tableDatabase import *
 
+# Database
+
+engine = create_engine('sqlite:///darknet.db', echo = False)
+ 
+Session = sessionmaker(bind = engine)
+session = Session()
+
+
+def list(table):
+    '''\
+    Returns a record of a table
+    '''
+
+    if table == "user":
+        users = ""
+        res = session.query(User).all()
+        for user in res:
+            users += user.firstname + " " + user.lastname + "\n";
+        return users      
+
+    if table == "hacker":
+        hackers = ""
+        res = session.query(Hacker).all()
+        for hacker in res:
+            hackers += hacker.nickname + "\n";
+        return hackers      
+
+    return "Invalid table"
+
+    """
+    qry = session.query(User, Hacker)
+    qry = qry.filter(User.id == Hacker.user_id)
+
+    user, hacker = qry.filter(Hacker.nickname == "SolomonKane").first()
+    return user.firstname + " " + user.lastname + " = " + hacker.nickname
+    """    
     
     
 

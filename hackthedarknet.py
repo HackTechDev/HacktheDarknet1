@@ -3,9 +3,6 @@ import pygame, os, sys, re
 import select, socket
 
 from pygame.locals import *
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from tableDatabase import *
 
 sys.path.append('./module')
 
@@ -29,12 +26,6 @@ Background.blit(bg_img,(0,0))
 
 bg_color = [0x0,0x0,0x0]
 
-# Database
-
-engine = create_engine('sqlite:///darknet.db', echo = False)
- 
-Session = sessionmaker(bind = engine)
-session = Session()
 
 # Network
 
@@ -49,35 +40,9 @@ msg_prefix = ''
 socket_list = [sys.stdin, server_connection]
 
 
-def list(table):
-    '''\
-    Returns a record of a table
-    '''
-
-    if table == "user":
-        users = ""
-        res = session.query(User).all()
-        for user in res:
-            users += user.firstname + " " + user.lastname + "\n";
-        return users      
-
-    if table == "hacker":
-        hackers = ""
-        res = session.query(Hacker).all()
-        for hacker in res:
-            hackers += hacker.nickname + "\n";
-        return hackers      
-
-    return "Invalid table"
-
-
-    """
-    qry = session.query(User, Hacker)
-    qry = qry.filter(User.id == Hacker.user_id)
-
-    user, hacker = qry.filter(Hacker.nickname == "SolomonKane").first()
-    return user.firstname + " " + user.lastname + " = " + hacker.nickname
-    """
+def hacker(table):
+    msg_prefix = ''
+    print (table)
 
 def f():
     return 100
@@ -179,19 +144,15 @@ def login(name = "defaultname"):
                 if not msg:
                     return "Server down"
                 else:
-                    quit_string = '<$quit$>'
-                    if msg == quit_string.encode():
-                        return "Logout"
+                    sys.stdout.write(msg.decode())
+                    if 'Please tell us your name' in msg.decode():
+                        msg_prefix = 'name: ' # identifier for name
+                        msg = msg_prefix + name
+                        server_connection.sendall(msg.encode())
+                        return "Send name: " + name 
                     else:
-                        sys.stdout.write(msg.decode())
-                        if 'Please tell us your name' in msg.decode():
-                            msg_prefix = 'name: ' # identifier for name
-                            msg = msg_prefix + name
-                            server_connection.sendall(msg.encode())
-                            return "Send name: " + name 
-                        else:
-                            msg_prefix = ''
-                        return '>'
+                        msg_prefix = ''
+                return '>'
             else:
                 msg = msg_prefix + name
                 server_connection.sendall(msg.encode())
@@ -213,8 +174,8 @@ def main():
                                             "polygon": polygon, 
                                             "circle": circle,
                                             "login": login,
-                                            "sendmsg": sendmsg,
-                                            "list": list
+                                            "hacker": hacker,
+                                            "sendmsg": sendmsg
                                             }, # Functions for the console
                                 key_calls={"d":sys.exit
                                             }, # Defines what function Control+char will call, in this case ctrl+d calls sys.exit()
